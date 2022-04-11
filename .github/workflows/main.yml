@@ -1,0 +1,44 @@
+name: Dowload and Mirror packages from anaconda 
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Channel to be mirrored. Default is <<conda-forge>>'
+        default: 'conda-forge'
+        required: false
+        type: string
+      package:
+        description: 'Package to be mirror. Default: all packages of the channel'
+        required: false
+        type: string
+
+defaults:
+  run:
+    working-directory: ./
+
+jobs:
+  mirror-pkgs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        subdir: [linux-64,osx-64,osx-arm64,win-64,linux-aarch64,linux-ppc64le,noarch]
+    env:
+      GITHUB_USER: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+            ref: master
+      - name: install mamba
+        uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: my_env.yml
+          micromamba-version: latest
+
+      - name:  clone project and mirror
+        run: |
+          python -m pip install git+https://github.com/mamba-org/conda_oci_mirror@main
+          echo ${{ env.GITHUB_TOKEN }} | oras login https://ghcr.io -u ${{ env.GITHUB_USER }} --password-stdin
+          conda-oci mirror --channel ${{ github.event.inputs.channel }}  -s ${{ matrix.subdir }} --packages ${{ github.event.inputs.package }}  --user ${{ env.GITHUB_USER }}
+        shell: bash -l {0}
