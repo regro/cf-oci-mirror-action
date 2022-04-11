@@ -23,7 +23,7 @@ jobs:
       matrix:
         subdir: [linux-64,osx-64,osx-arm64,win-64,linux-aarch64,linux-ppc64le,noarch]
     env:
-      GITHUB_USER: ${{ github.actor }}
+      GITHUB_USER: regro
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
