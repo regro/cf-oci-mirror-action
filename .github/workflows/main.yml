@@ -8,7 +8,7 @@ on:
         required: false
         type: string
       package:
-        description: 'Package to be mirror. Default: all packages of the channel'
+        description: 'Package to be mirrored. Default: all packages of the channel'
         required: false
         type: string
 
